@@ -1,36 +1,31 @@
 
 public class PrefixFunction {
-	private static int[] prefixArray;
-	private static String longestBorder = "";
 	
-	private static void prefixCalculator(String str) {
-		prefixArray = new int[str.length()];
-		longestBorder = "";
+	public static int[] prefixCalculator(String str) {
+		int[] prefixArray = new int[str.length()];
 		
 		// first index is always 0, so we'll start with 1
 		for (int i = 1; i < prefixArray.length; i++) {
+			int j = prefixArray[i - 1];
 			
-			if (longestBorder.isEmpty()) {
-				if (str.charAt(0) == str.charAt(i)) {
-					prefixArray[i] = 1;
-					longestBorder += str.charAt(i);
+			while (j > 0) {
+				if (str.charAt(i) == str.charAt(j)) {
+					prefixArray[i] = j + 1;
 				}
+				j = prefixArray[j - 1];
 			}
 			
-			else {
-				if (longestBorder.charAt(longestBorder.length() - 1) == str.charAt(i)) {
-					prefixArray[i] = 1;
-				}
-				// extend the border
-				if (str.charAt(longestBorder.length()) == str.charAt(i)) {
-					longestBorder += str.charAt(i);
-					prefixArray[i] = longestBorder.length();
+			if (prefixArray[i] == 0) {
+				if (str.charAt(i) == str.charAt(j)) {
+					prefixArray[i] = j + 1;
 				}
 			}
 		}
+		
+		return prefixArray;
 	}
 	
-	private static void printArray() {
+	private static void printArray(int[] prefixArray) {
 		for (int i : prefixArray) {
 			System.out.print(i + " ");
 		}
@@ -44,17 +39,25 @@ public class PrefixFunction {
 	
 	public static void main(String[] args) {
 		String str = "ABACABAD";
-		prefixCalculator(str);
+		int[] prefixArray = prefixCalculator(str);
 		printStr(str);
 		System.out.println();
-		printArray();
+		printArray(prefixArray);
 		
 		System.out.println();
 		
 		str = "ACCABACCAC";
-		prefixCalculator(str);
+		prefixArray = prefixCalculator(str);
 		printStr(str);
 		System.out.println();
-		printArray();
+		printArray(prefixArray);
+		
+		System.out.println();
+		
+		str = "ABACABAD";
+		prefixArray = prefixCalculator(str);
+		printStr(str);
+		System.out.println();
+		printArray(prefixArray);
 	}
 }

@@ -26,21 +26,17 @@ public class KMP {
 	private static List<Integer> occurences(String text, String pattern, int[] prefixArray) {
 		List<Integer> occurencesList = new ArrayList<>();
 		
-		int i = 0;
 		int j = 0;
 		
-		while (i < text.length()) {
-			boolean isMatch = true;
-			for (; j < pattern.length(); j++, i++) {
-				if (text.charAt(i) != pattern.charAt(j)) {
-					j = prefixArray[j - 1];
-					isMatch = false;
-					i++;
-					break;
-				}
+		for (int i = 0; i < text.length(); i++) {
+			while (j > 0 && text.charAt(i) != pattern.charAt(j)) {
+				j = prefixArray[j - 1];
 			}
-			if (isMatch) {
-				occurencesList.add(i - pattern.length());
+			if (text.charAt(i) == pattern.charAt(j)) {
+				j++;
+			}
+			if (j == pattern.length()) {
+				occurencesList.add(i - pattern.length() + 1);
 				j = prefixArray[j - 1];
 			}
 		}
@@ -63,6 +59,8 @@ public class KMP {
 		int[] prefixArray = PrefixFunction.prefixCalculator(pattern);
 		
 		System.out.println(isMatch(text, pattern, prefixArray));
+		
+		printList(occurences(text, pattern, prefixArray));
 		
 		text = "ABCABCAABCABD";
 		pattern = "ABCABD";

@@ -77,29 +77,39 @@ public class KMP {
 		return occurencesList;
 	}
 	
-	private static int numberOfUniqueSubstrings(String text) {
-		int[] prefixArray = PrefixFunction.prefixCalculator(text);
+	private static Set<String> numberOfUniqueSubstrings(String text) {
+		int[] prefixArray = prefixFunction(text);
 		Set<String> substrings = new HashSet<>();
 		
+		// approach 1: using sets
 		for (int i = 0; i < prefixArray.length; i++) {
-			if (prefixArray[i] == 0) {
-				substrings.add(text.charAt(i) + "");
-			}
-			for (int j = i; j > 0; j--) {
-				if (prefixArray[j] > 0 && prefixArray[j - 1] > 0 && prefixArray[i] != 0) {
-					continue;
-				}
-				substrings.add(text.substring(j - 1, i + 1));
+			for (int j = i - prefixArray[i]; j >= 0; j--) {
+				substrings.add(text.substring(j, i + 1));
 			}
 		}
 		
-		return substrings.size() + 1; // 1 is for empty string
+		// approach 2: without using sets
+		int number = 1; // 1 is for empty string
+		
+		String temp = "";
+		
+		for (int i = 0; i < text.length(); i++) {
+			String reverse = new StringBuilder(temp + text.charAt(i)).reverse().toString();
+			
+			int[] prefix = prefixFunction(reverse);
+			int max = Arrays.stream(prefix).max().getAsInt();
+			number += temp.length() + 1 - max;
+			temp += text.charAt(i);
+		}
+		
+		System.out.println(number);
+		return substrings; 
 	}
 	
 	/* taken from https://www.geeksforgeeks.org/count-number-of-distinct-substring-in-a-string/
 	 * just to match numbers with my own implementation
 	 */
-	private static int distinctSubstring(String str) 
+	private static Set<String> distinctSubstring(String str) 
     { 
         // Put all distinct substring in a HashSet 
         Set<String> result = new HashSet<String>(); 
@@ -114,8 +124,34 @@ public class KMP {
         } 
   
         // Return size of the HashSet 
-        return result.size(); 
+        return result; 
     } 
+	
+	private static int[] prefixFunction(String str) {
+	    /* 1 */
+	    int[] prefixFunc = new int[str.length()];
+	 
+	    /* 2 */
+	    for (int i = 1; i < str.length(); i++) {
+	        /* 3 */
+	        int j = prefixFunc[i - 1];
+	 
+	        while (j > 0 && str.charAt(i) != str.charAt(j)) {
+	            j = prefixFunc[j - 1];
+	        }
+	 
+	        /* 4 */
+	        if (str.charAt(i) == str.charAt(j)) {
+	            j += 1;
+	        }
+	 
+	        /* 5 */
+	        prefixFunc[i] = j;
+	    }
+	 
+	    /* 6 */
+	    return prefixFunc;
+	}
 	
 	private static void printList(List<Integer> list) {
 		for (int i : list) {
@@ -242,7 +278,19 @@ public class KMP {
 //		checkKMPSearch();
 		
 		String text = "AkIRltGuHudGcXAtXcNwtkQibnCEkSJuZKCYUHZdwzcsINGhnGOPtbWoZyaLfxxvwxhpEJyrdWHlbwESHweBiuIRFHRpZpLHBKevdaAWszpmtWZKLvhPZwWPGEwgPsDuOkHFgLUwRWWKANQQaqPvJSYVvAcalDdFkMoEoyCymPKLywZjACMDTNUxOQaiyAFEStjNQNJaAadeLcRuEDhGreVkoBsAETPNADQdLtfIVdOeCvzNHVKAUBkPSyxoEETNdEWUszkWdvbbJXtktfVbqPebYuTSuWPxvpszmkuvayENCwWAkIimcVCaZRivueSrWdcqzTKgjOxZCOVRiaQDjRIHHlMQfWDIAUacYGnQVNTWslfiOcAxlfZJBQmJxhJXHlSKcKoGrwCaTUiyJhibxAsxdLOwEamPaiTSvczfTzsgWXnIjydTOcrnGipLSoYhXOUBGfjJfzWsoRWlDxWisJIiLbYYpTUhlFsNhjGAgiLGZkigPZtOpCAKSiGipVuRVYfuSHEiRKTxIEQAvHopSwcRoeKIoWGQQywTtLFjerQVTFqWipakbHClUBINidzbaexZKHRlxPZooKIVSRyZwYKIPxxSqGxCfsDTmQeUmaYadjwZtXHSpJcaFiyYUFkvdxoveXGuTqMKYBprEoOldQJXIBEYcwNMCVSNkfAtjBnZSdFeFkUMDgecdKWsDfiYPbhbBYkVbXhtBAyQVfKjDGSHhLmbzKFibeomLJSOxNchqOzdGMXldfgNCumxc";
-		System.out.println(numberOfUniqueSubstrings(text));
-		System.out.println(distinctSubstring(text));
+		text = "NHbciZalJralstQcmyrDVLZmRKExkmEIvGcVqKzIHMIVxvvsgKyRYZspzpaFuhriNwuqapnGLdnCZXmvoxlMGdZLRgYwtWLfUFNIEVVOrHQuJAfIFRqSXEwtxXzGNBlnmkxcBSyJdOFHBWTQGBvUSYGGfmMJTxPioeOHfGesmddHPcEnjQAZhnAbhDkqLAGDAjwpJXXwDCkGBFvHwUTJyNMnyOsJZPMJriWQRPPWelOmEQnSWBFIMBbhcoygbJPODMrhpuZQqcMDseqylGNiqGKtPEEhdPslyDdFXEDlgVFmTiBMpGINxviCAGwkbkIchvyzEDZiNHIXlNmtyLOiWqQKDIUSMzKZMPwNQICykawDsNGysviHupvloZpyyCDmdiFyhHnOOSWfZHMiUYXezKBrYakLANmKjlCPMjWwoaLhNIoSPeYcRhFpfKtFeLJbnGMdPCAHkejwfsMoTtfmSfhsVSGZmOBIoRQjIXktGIKusywtVBMwMAfpPSoHVgSKcPwVOlsWmxsFauMNKqoGhRlzbMczpGldPHflqDXdDmtHrFZhgbEaVMOlXwPeFFNNGBxOoTlNmGJIzOSnl";
+		text = "asasasrterer";
+	//	text = "evXqKymsYGxDmAMQBvIGHUIqChblgaEyVouHVPYQuXjmEzPAibSNLcNJBPNihoVFKUCdCfeTqKfLltYPZNNCBDCCiglCkBCqwXjdnqLDirUqsKjhFrmNqTpJdsXPvyiejDfwkMStLFwAoDLPwHbnzWjDFoSIvSrzKhlvniFOorSxzrFhuwIsbmsEBTvNavcbdJupaCJzZAwCYAFlshxrpMstvOfXaXNuFeCYqVEyfwwvFuSggqUKFJRNUGJAFOtxsJsdNtvTUywrRJLZMCNxSGnoQiMCIjqYlAKCrDgQgwjJyviNNbOXVWxWVRsEquXTRkMpxEAiRAEyCymKOSqkBBcuinboYXYdQsOOLkNPXmXQbUSSYWfYfTBSLdKJwQfYjovfFfQrTtYOesFZRJmSfmucvwceWiRAUhZdgkAhOyhCBbKNLMfhzODUFbYoldQzCDggiBHtUeYvAibMiDkaHWqjexIvvdOTczsxvfXtpjzeqBpoJpvKQOjenfzrlEnMWPAhEUbZykGuNhVSMipaeKvcsapHwbhlflVDNmhxFRkEHljswpebGorUFZyaIJiMlxEjLrT";
+				
+		Set<String> set1 = distinctSubstring(text);
+		Set<String> set2 = numberOfUniqueSubstrings(text);
+		
+		System.out.println(set1.size() + " " + set2.size());
+		
+		set1.removeAll(set2);
+		
+		for (String str : set1) {
+			System.out.println(str);
+		}
 	}
 }

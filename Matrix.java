@@ -16,8 +16,9 @@ public class Matrix {
 		for (int i = 0; i < textMatrix.length; i++) {
 			textMatrix[i] = scanner.nextLine();
 		}
-		
+		long t = System.currentTimeMillis();
 		System.out.println(findOccurrences(textMatrix, patternMatrix));
+		System.out.println("Time: " + (System.currentTimeMillis() - t));
 		
 	}
 	
@@ -33,25 +34,30 @@ public class Matrix {
 				break;
 			}
 			
-			// case when there is just one row
-			if (patternMatrix.length == 1) {
-				occurrences += indices.size();
+			if (indices.isEmpty()) {
+				continue;
 			}
 			
-			else {
-				// for each row check all the indices
-				for (int j = i + 1, a = 1; a <= patternMatrix.length - 1; j++, a++) {
-					Iterator<Integer> iterator = indices.iterator();
-					while (iterator.hasNext()) {
-						int index = iterator.next();
-						if (!textMatrix[j].substring(index, index + patternMatrix[a].length()).equals(patternMatrix[a])) {
-							iterator.remove();
-						}
+			for (int j = i + 1, a = 1; a <= patternMatrix.length - 1; j++, a++) {
+				
+				// check if this row is similar to the last one
+				if (textMatrix[j] == textMatrix[j - 1]) {
+					continue;
+				}
+				
+				Iterator<Integer> iterator = indices.iterator();
+				while (iterator.hasNext()) {
+					int index = iterator.next();
+					if (!textMatrix[j].substring(index, index + patternMatrix[a].length()).equals(patternMatrix[a])) {
+						iterator.remove();
 					}
 				}
 				
-				occurrences += indices.size();
+				if (indices.isEmpty()) {
+					break;
+				}
 			}
+			occurrences += indices.size();
 		}
 		
 		return occurrences;
@@ -84,7 +90,7 @@ public class Matrix {
 	}
 	
 	private static List<Integer> occurrences(String text, String pattern) {
-		int[] prefixArray = prefixFunction(text);
+		int[] prefixArray = prefixFunction(pattern);
 		List<Integer> occurrencesList = new ArrayList<>();
 		
 		int j = 0;
@@ -103,40 +109,5 @@ public class Matrix {
 		}
 		
 		return occurrencesList;
-	}
-	
-	private static List<Integer> nonOverlappingOccurences(String text, String pattern) {
-		
-		int[] prefixArray = prefixFunction(text);
-		List<Integer> occurencesList = new ArrayList<>();
-		
-		if (pattern.isEmpty() && text.isEmpty()) {
-			occurencesList.add(0);
-			return occurencesList;
-		}
-		
-		if (pattern.isEmpty()) {
-			for (int i = 0; i < text.length(); i++) {
-				occurencesList.add(i);
-			}
-			return occurencesList;
-		}
-		
-		int j = 0;
-		
-		for (int i = 0; i < text.length(); i++) {
-			while (j > 0 && text.charAt(i) != pattern.charAt(j)) {
-				j = prefixArray[j - 1];
-			}
-			if (text.charAt(i) == pattern.charAt(j)) {
-				j++;
-			}
-			if (j == pattern.length()) {
-				occurencesList.add(i - pattern.length() + 1);
-				j = 0;
-			}
-		}
-		
-		return occurencesList;
 	}
 }

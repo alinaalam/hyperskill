@@ -26,13 +26,14 @@ public class Matrix {
 		int occurrences = 0;
 		
 		for (int i = 0; i < textMatrix.length; i++) {
-			// check if you can find the first row
-			List<Integer> indices = occurrences(textMatrix[i], patternMatrix[0]);
 			
 			// check if you have appropriate remaining rows
 			if (textMatrix.length - 1 - i < patternMatrix.length - 1) {
 				break;
 			}
+			
+			// check if you can find the first row
+			List<Integer> indices = occurrences(textMatrix[i], patternMatrix[0]);
 			
 			if (indices.isEmpty()) {
 				continue;
@@ -40,8 +41,7 @@ public class Matrix {
 			
 			for (int j = i + 1, a = 1; a <= patternMatrix.length - 1; j++, a++) {
 				
-				// check if this row is similar to the last one
-				if (textMatrix[j] == textMatrix[j - 1]) {
+				if (textMatrix[j].equals(textMatrix[j - 1]) && patternMatrix[a].equals(patternMatrix[a - 1])) {
 					continue;
 				}
 				
@@ -57,9 +57,9 @@ public class Matrix {
 					break;
 				}
 			}
+			
 			occurrences += indices.size();
 		}
-		
 		return occurrences;
 	}
 	
